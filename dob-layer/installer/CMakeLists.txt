@@ -24,13 +24,14 @@ add_executable(dob-installer
 
 target_link_libraries(dob-installer Qt6::Widgets)
 
-# Unit test target for planInstall (pure function, no Qt dependency)
+# Unit test target for planInstall (needs QtCore for QString in config.h)
 add_executable(plan_install_test
     engine/plan_install_test.cpp
     engine/plan_install.cpp
     config.cpp
 )
 
+target_link_libraries(plan_install_test Qt6::Core)
 target_compile_definitions(plan_install_test PRIVATE DOB_UNIT_TEST)
 
 install(TARGETS dob-installer RUNTIME DESTINATION /usr/local/bin)
