@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="160" viewBox="0 0 512 160">
+  <!-- DOB installer branding placeholder. Task 9 replaces with the final red-framed logo. -->
+  <defs>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FB2E0"/>
+      <stop offset="1" stop-color="#3A6EA5"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E63950"/>
+      <stop offset="1" stop-color="#C0102A"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="508" height="156" rx="14" fill="url(#glass)"/>
+  <rect x="2" y="2" width="508" height="156" rx="14" fill="none" stroke="url(#red)" stroke-width="4"/>
+  <text x="256" y="96" font-family="sans-serif" font-size="64" font-weight="bold" fill="url(#red)" text-anchor="middle">DOB</text>
+  <text x="256" y="132" font-family="sans-serif" font-size="20" fill="#ffffff" text-anchor="middle">Installer</text>
+</svg>

@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/branding">
         <file alias="branding.svg">dob-layer/overlay/usr/local/share/dob/installer/branding.svg</file>
     </qresource>
 </RCC>
