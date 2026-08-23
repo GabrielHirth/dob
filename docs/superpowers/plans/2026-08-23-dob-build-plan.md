@@ -65,7 +65,8 @@ img, work dirs). Commit.
 
 Author original SVG source art in `dob-layer/overlay/usr/local/share/dob/art/`:
 - `logo.svg` — DOB wordmark on Aero glass with red tint.
-- `wallpaper.svg` — Aero sky-blue glass with subtle red aurora.
+- `wallpaper.svg` — **a mountain image** rendered in Aero glass treatment, blue
+  base with subtle red aurora.
 - `boot-splash.svg` — full-screen DOB name + Aero glass, red-tinted, 16:9.
 - `desktop-splash.svg` — DOB name centered, red gloss, for Plasma splash.
 - `key-icons/` — ~12 original 64×64 SVG app icons (network, storage, power,
@@ -107,14 +108,18 @@ All colors use the brand tokens. Commit.
 
 - Rasterize `boot-splash.svg` and `desktop-splash.svg` to PNG at common
   resolutions (e.g. 1920×1080, 1366×768) into
-  `dob-layer/overlay/usr/local/share/dob/splash/`.
+  `dob-layer/overlay/usr/local/share/dob/splash/`. Boot splash is a **static** PNG
+  (blue + subtle red aurora); desktop splash is the animated/red-bold asset.
 - Author `dob-layer/overlay/etc/loader.conf.dob`: sets the FreeBSD loader logo to
-  the DOB logo, hides the boot menu text where safe, applies red-frame branding
-  (loader menu theme snippet), and references the boot splash.
+  the DOB blue logo and **configures autoboot with zero delay and no menu**
+  (`autoboot_delay="-1"`, `menu_timeout=0`, no options shown — boots straight into
+  the OS with no FreeBSD default-menu prompt). **No red frame at boot.** References
+  the static boot splash.
 - Author `dob-layer/overlay/etc/rc.conf.dob`: enables the `vt` framebuffer splash
-  pointing at the DOB boot splash, and (for live) triggers Plasma + DOB desktop
-  splash on first boot.
-Commit. **Why:** spec §5 boot/splash flow.
+  pointing at the DOB static boot splash, and (for live) triggers Plasma + the
+  **animated** DOB desktop splash on first boot.
+Commit. **Why:** spec §5 boot/splash flow (autoboot, static blue splash, red-bold
+desktop).
 
 ## Task 6 — Custom Qt installer: project skeleton
 
@@ -133,9 +138,9 @@ branded window titled "DOB Installer". Commit.
 Implement the wizard pages over `InstallConfig`:
 - **Welcome:** DOB branding, language + keyboard selectors (static lists;
   English default).
-- **Disk:** guided "use entire disk" (ZFS or UFS radio) + advanced custom
-  partition toggle; explicit red warning text before any destructive write.
-  Validation: must pick a non-empty target.
+- **Disk:** **guided only** — "use entire disk" with a ZFS (**default**) or UFS
+  radio; **no custom partition editor**. Explicit red warning text before any
+  destructive write. Validation: must pick a non-empty target.
 - **User:** name, password (+confirm), hostname, autologin checkbox; validation
   on password match and non-empty name.
 - **Summary:** read-only review of all selections.
@@ -149,15 +154,17 @@ Implement `InstallEngine` that, on "Install" from Summary:
   `#ifdef DOB_REAL_DISK` / root check).
 - Applies the DOB layer (theme default, users, hostname) to the copied root.
 - Writes a boot-block placeholder step with clear logging.
-- Rollback-safe: no writes to target until user confirms on Summary; on failure,
-  logs to an accessible file and shows a clear error dialog (exercise the
-  disk-full path with a clear message).
+- **Validate-then-write** with **auto-rollback**: no writes to target until user
+  confirms on Summary; on failure the engine unmounts/cleans the target and logs to
+  an accessible file, then shows a clear error dialog (exercise the disk-full path
+  with a clear message). Pure function `planInstall(config) -> ordered steps` stays
+  unit-testable with no disk IO.
 Provide a unit-testable pure function `planInstall(config) -> ordered steps` with
 tests (no disk IO). Commit. **Why:** spec §6 install step + error handling.
 
 ## Task 9 — Installer branding + install-into-image packaging
 
-- Add DOB installer branding assets (logo, red frame, title) under
+- Add DOB installer branding assets (logo, red window frame, title) under
   `dob-layer/overlay/usr/local/share/dob/installer/`.
 - Make the installer build into the image: add it to
   `dob-layer/pkg-list/dob-manifest.pkglist` as a local port/pkg, and add an
@@ -199,8 +206,9 @@ Scripts must be syntax-valid (`bash -n`) and clearly document the host requireme
 Run `build.sh` to produce `dob-1.0-amd64.iso`; boot it in a VM (UTM/VirtualBox):
 loader → red-tinted boot splash → live Plasma (DOB theme active) → DOB installer
 → installed reboot. Build `dob-1.0-arm64.img`; boot in UTM / flash to RPi: same
-flow. Verify reddish-tint icons render in Plasma + file manager; installer clean,
-custom-partition, and disk-full failure paths show clear errors. Record results
+flow. Verify reddish-tint icons render in Plasma + file manager; installer clean (guided
+"entire disk", ZFS default, UFS) and disk-full failure path show clear errors with
+auto-rollback. Record results
 in `dob-layer/build/ACCEPTANCE.md`.
 
 **If no FreeBSD host is available:** this task is replaced by a documented

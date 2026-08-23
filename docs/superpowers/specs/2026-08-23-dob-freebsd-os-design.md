@@ -73,12 +73,17 @@ Responsibility split:
 ## 4. Visual Identity (Aero + Red)
 
 - **Palette:** classic Aero glassy gradients and sky-blue glass highlights, with
-  the primary accent shifted to a **reddish tint** (deep crimson → warm red). The
-  red is applied to glossy highlights, icon glows, and active states. Backgrounds
-  keep Aero sky-blue glass with a subtle red aurora.
+  the primary accent shifted to a **reddish tint** (deep crimson → warm red). Red
+  is a **confident accent** on a blue-dominant chrome: applied to glossy
+  highlights, icon glows, and active/selection states. It goes bold only at the
+  **desktop and active UI** — the boot/loader/splash stages stay Aero-blue with a
+  subtle red aurora (no red frame at boot). Backgrounds keep Aero sky-blue glass
+  with a subtle red aurora.
 - **Original signature pieces (authored as SVG):** DOB wordmark/logo, boot splash
-  artwork (OS name on Aero glass), desktop wallpaper, installer branding, and
-  roughly 12 key app icons (network, storage, power, browser, files, etc.).
+  artwork (OS name on Aero glass), desktop splash (animated, red-bold), **desktop
+  wallpaper as a mountain image** (Aero glass treatment, blue with subtle red
+  aurora), installer branding, and roughly 12 key app icons (network, storage,
+  power, browser, files, etc.) with a red-gloss treatment.
 - **Retinted free set:** Breeze/Oxygen-derived icon set batch-applied with a
   red-gloss treatment for the long-tail icons.
 - **Theme:** a custom Plasma Look-and-Feel + Kvantum/Qt style delivering glass
@@ -87,32 +92,46 @@ Responsibility split:
 
 ## 5. Boot & Splash Flow
 
-1. **EFI/BIOS boot** → FreeBSD `loader.efi`, themed with the DOB logo and a red
-   Aero frame; text menu hidden or minimized.
-2. **Kernel boot** → framebuffer boot splash (DOB name + animated Aero glass with
-   red tint) via `vt` splash; verbose boot output hidden.
-3. **Live desktop** → Plasma launches with a DOB splash screen (OS name), then
-   auto-presents the **DOB installer** on first boot (also available as an
-   "Install DOB" desktop shortcut).
-4. **Installed boot** → same themed loader/splash, then Plasma login.
+The boot/loader/splash stages stay Aero-blue with a subtle red aurora. Red goes
+bold only once the desktop and active UI are up.
+
+1. **EFI/BIOS boot** → FreeBSD `loader.efi` themed with the DOB logo, configured to
+   **autoboot with zero delay and no menu** — no loader options, no FreeBSD
+   default-menu prompt, no timeout. The device boots straight into the OS; the DOB
+   blue logo may flash briefly, then control passes immediately to the kernel.
+   (Tradeoff: no on-device recovery entry at boot — recovery is via reinstall
+   media, the standard consumer-OS tradeoff.)
+2. **Kernel boot** → framebuffer boot splash via `vt`: a **static** PNG (DOB name +
+   Aero glass, blue with subtle red aurora). Kernel-stage animation is not possible
+   on `vt`, so the splash is static; verbose boot output is hidden.
+3. **Live desktop** → Plasma launches with an **animated** DOB desktop splash
+   (OS name, red-bold gloss) — this is where red first goes bold — then auto-presents
+   the **DOB installer** on first boot (also available as an "Install DOB" desktop
+   shortcut).
+4. **Installed boot** → same autoboot loader + static blue splash, then the animated
+   desktop splash, then Plasma login.
 
 ## 6. Custom Installer (Qt)
 
-A graphical wizard, KDE/Qt native, Aero-red themed. Steps:
+A graphical wizard, KDE/Qt native, Aero-red themed. The installer runs inside the
+live environment and **clones the prebuilt live root** to the target disk (offline,
+no network pkg fetch — fast, commercial feel).
+
+Steps:
 
 1. **Welcome** — DOB branding, language and keyboard selection.
-2. **Disk** — guided ("use entire disk", ZFS or UFS) plus an advanced custom
-   partition path; clear, explicit warnings before any destructive write.
+2. **Disk** — **guided only**: "use entire disk" with a ZFS (default) or UFS radio.
+   No custom partition editor. Clear, explicit red warning before any destructive
+   write.
 3. **User** — name, password, hostname, autologin toggle.
-4. **Summary** — review selections → install (copy the prebuilt image root, apply
+4. **Summary** — review selections → install (clone the prebuilt image root, apply
    the DOB layer, create users, write boot blocks).
 5. **Done** — prompt to reboot.
 
-The installer runs inside the live environment and reuses the already-built root
-rather than installing packages over the network (fast, offline, commercial feel).
-
-Error handling: per-step validation; rollback-safe (writes to the target disk only
-after explicit confirmation); clear failure messages with accessible logs.
+Error handling: **validate-then-write** — every selection validated before any disk
+write; writes to the target happen only after explicit confirmation on Summary. On
+failure the installer **auto-rolls-back** (unmounts / cleans the target) and shows a
+clear error dialog with an accessible log file.
 
 ## 7. Build & Release Pipeline
 
