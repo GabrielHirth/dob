@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="browser">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FB2E0"/>
+      <stop offset="1" stop-color="#234E7A"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="redGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#C0102A" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#C0102A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#base)"/>
+  <rect x="6" y="5" width="52" height="22" rx="10" fill="url(#gloss)"/>
+  <rect x="14" y="22" width="36" height="30" rx="4" fill="#FFFFFF" opacity="0.92"/>
+  <ellipse cx="32" cy="32" rx="18" ry="14" fill="url(#redGlow)"/>
+  <rect x="14" y="22" width="36" height="9" rx="3" fill="#E63950"/>
+  <circle cx="20" cy="26.5" r="1.8" fill="#FFFFFF"/>
+  <circle cx="26" cy="26.5" r="1.8" fill="#FFFFFF"/>
+  <rect x="18" y="36" width="28" height="3" rx="1.5" fill="#7FB2E0"/>
+  <rect x="18" y="42" width="20" height="3" rx="1.5" fill="#7FB2E0"/>
+<style>/* DOB red-gloss tint target: #C0102A */</style></svg>

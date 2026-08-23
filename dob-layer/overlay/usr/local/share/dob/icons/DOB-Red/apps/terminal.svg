@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="terminal">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FB2E0"/>
+      <stop offset="1" stop-color="#234E7A"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="redGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#C0102A" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#C0102A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#base)"/>
+  <rect x="6" y="5" width="52" height="22" rx="10" fill="url(#gloss)"/>
+  <ellipse cx="32" cy="36" rx="18" ry="15" fill="url(#redGlow)"/>
+  <rect x="14" y="22" width="36" height="28" rx="4" fill="#FFFFFF" opacity="0.92"/>
+  <g fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 32 l7 7 -7 7" stroke="#E63950"/>
+    <line x1="32" y1="46" x2="44" y2="46" stroke="#3A6EA5"/>
+  </g>
+</svg>
