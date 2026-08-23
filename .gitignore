@@ -1,0 +1,19 @@
+# DOB build output — not committed
+# ISO / image artifacts
+*.iso
+*.img
+*.qcow2
+*.raw
+
+# Build work / scratch directories
+dob-layer/build/work/
+dob-layer/build/obj/
+work/
+obj/
+
+# Checksums (generated with builds)
+SHA256SUMS
+
+# Editor / OS noise
+.DS_Store
+*~
