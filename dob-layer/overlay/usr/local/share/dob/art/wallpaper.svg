@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="DOB mountain wallpaper">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#CFE6FF"/>
+      <stop offset="0.45" stop-color="#7FB2E0"/>
+      <stop offset="1" stop-color="#3A6EA5"/>
+    </linearGradient>
+    <radialGradient id="aurora" cx="0.82" cy="0.12" r="0.55">
+      <stop offset="0" stop-color="#C0102A" stop-opacity="0.38"/>
+      <stop offset="0.5" stop-color="#C0102A" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#C0102A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9FC4E8"/>
+      <stop offset="1" stop-color="#5E89B4"/>
+    </linearGradient>
+    <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4E7AA8"/>
+      <stop offset="1" stop-color="#2C4F77"/>
+    </linearGradient>
+    <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2C4F77"/>
+      <stop offset="1" stop-color="#162F4C"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blurAurora"><feGaussianBlur stdDeviation="60"/></filter>
+    <filter id="blurSteak"><feGaussianBlur stdDeviation="22"/></filter>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+
+  <!-- Soft light streaks -->
+  <g filter="url(#blurSteak)" opacity="0.5">
+    <rect x="-200" y="120" width="2400" height="40" transform="rotate(-8 960 540)" fill="#FFFFFF" opacity="0.5"/>
+    <rect x="-200" y="240" width="2400" height="22" transform="rotate(-8 960 540)" fill="#FFFFFF" opacity="0.35"/>
+  </g>
+
+  <!-- Red aurora glow, top corner only -->
+  <rect width="1920" height="1080" fill="url(#aurora)" filter="url(#blurAurora)"/>
+
+  <!-- Distant range -->
+  <path d="M0 720 L260 560 L520 660 L820 500 L1120 620 L1420 520 L1720 640 L1920 560 L1920 1080 L0 1080 Z" fill="url(#m1)" opacity="0.85"/>
+  <!-- Mid range -->
+  <path d="M0 840 L320 660 L640 800 L960 620 L1280 820 L1620 680 L1920 820 L1920 1080 L0 1080 Z" fill="url(#m2)"/>
+  <!-- Near range -->
+  <path d="M0 980 L400 800 L760 940 L1120 780 L1480 960 L1840 840 L1920 900 L1920 1080 L0 1080 Z" fill="url(#m3)"/>
+  <!-- Top gloss sheen on near range -->
+  <path d="M0 980 L400 800 L760 940 L1120 780 L1480 960 L1840 840 L1920 900 L1920 940 L0 1020 Z" fill="url(#sheen)" opacity="0.25"/>
+</svg>

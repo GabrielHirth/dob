@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="DOB boot splash">
+  <defs>
+    <radialGradient id="field" cx="0.5" cy="0.42" r="0.75">
+      <stop offset="0" stop-color="#9FC8EC"/>
+      <stop offset="0.55" stop-color="#3A6EA5"/>
+      <stop offset="1" stop-color="#21486F"/>
+    </radialGradient>
+    <radialGradient id="auroraEdge" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.55" stop-color="#C0102A" stop-opacity="0"/>
+      <stop offset="0.85" stop-color="#C0102A" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#C0102A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glassBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FB2E0"/>
+      <stop offset="0.5" stop-color="#3A6EA5"/>
+      <stop offset="1" stop-color="#234E7A"/>
+    </linearGradient>
+    <linearGradient id="topGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="redGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE8EC"/>
+      <stop offset="0.28" stop-color="#E63950"/>
+      <stop offset="0.78" stop-color="#E63950"/>
+      <stop offset="1" stop-color="#C0102A"/>
+    </linearGradient>
+    <radialGradient id="redGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E63950" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#E63950" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0A1A2E" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Blue glass field -->
+  <rect width="1920" height="1080" fill="url(#field)"/>
+  <!-- Subtle red aurora at edges only -->
+  <rect width="1920" height="1080" fill="url(#auroraEdge)"/>
+
+  <!-- Centered logo panel -->
+  <g transform="translate(704,460)">
+    <g filter="url(#softShadow)">
+      <rect x="0" y="0" width="512" height="160" rx="26" ry="26" fill="url(#glassBody)" stroke="#BFE0FF" stroke-opacity="0.5" stroke-width="1.5"/>
+    </g>
+    <rect x="8" y="6" width="496" height="64" rx="20" ry="20" fill="url(#topGloss)"/>
+    <ellipse cx="256" cy="88" rx="150" ry="44" fill="url(#redGlow)"/>
+    <g font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="104" text-anchor="middle" letter-spacing="6">
+      <text x="256" y="121" fill="#7A0A1E" opacity="0.85">DOB</text>
+      <text x="256" y="118" fill="url(#redGloss)" stroke="#7A0A1E" stroke-width="0.6" stroke-opacity="0.4">DOB</text>
+    </g>
+  </g>
+</svg>
