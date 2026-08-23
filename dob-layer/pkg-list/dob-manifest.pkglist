@@ -1,0 +1,6 @@
+# DOB live image package manifest
+# Format: one package/port specifier per line (FreeBSD pkg / flavor).
+
+# --- DOB installer (local-built) ---
+# Built in-tree from dob-layer/installer (Qt6). Local pkg/port produced in Task 10/11.
+dob-installer

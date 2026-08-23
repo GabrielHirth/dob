@@ -4,3 +4,8 @@ dumpdev="NO"
 splash="DOB"
 # Live: launch Plasma + DOB desktop splash on first boot (Task 9 adds trigger)
 dob_live_autostart="YES"
+
+# DOB live first-boot installer trigger
+# When set, a Plasma-first-start user service launches /usr/local/bin/dob-installer.
+# Guarded by dob_live_autostart above (live media only); installed systems skip it.
+dob_live_installer_enable="YES"

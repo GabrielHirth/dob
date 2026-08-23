@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Install DOB
+Exec=/usr/local/bin/dob-installer
+Icon=system-software-install
+Categories=System;

@@ -35,3 +35,5 @@ target_link_libraries(plan_install_test Qt6::Core)
 target_compile_definitions(plan_install_test PRIVATE DOB_UNIT_TEST)
 
 install(TARGETS dob-installer RUNTIME DESTINATION /usr/local/bin)
+# Install branding/resources so the image carries the installer assets.
+install(FILES resources.qrc DESTINATION /usr/local/share/dob/installer)

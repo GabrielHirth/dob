@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="160" viewBox="0 0 512 160">
-  <!-- DOB installer branding placeholder. Task 9 replaces with the final red-framed logo. -->
+  <!-- DOB Installer branding: glass blue card, red window frame, white-highlighted wordmark. -->
   <defs>
     <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#7FB2E0"/>
+      <stop offset="0" stop-color="#8FC0EC"/>
       <stop offset="1" stop-color="#3A6EA5"/>
     </linearGradient>
-    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="redframe" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#E63950"/>
       <stop offset="1" stop-color="#C0102A"/>
     </linearGradient>
+    <linearGradient id="wordmark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.35" stop-color="#F4B8C2"/>
+      <stop offset="1" stop-color="#E63950"/>
+    </linearGradient>
   </defs>
+  <!-- Glass background -->
   <rect x="2" y="2" width="508" height="156" rx="14" fill="url(#glass)"/>
-  <rect x="2" y="2" width="508" height="156" rx="14" fill="none" stroke="url(#red)" stroke-width="4"/>
-  <text x="256" y="96" font-family="sans-serif" font-size="64" font-weight="bold" fill="url(#red)" text-anchor="middle">DOB</text>
-  <text x="256" y="132" font-family="sans-serif" font-size="20" fill="#ffffff" text-anchor="middle">Installer</text>
+  <!-- Red window frame -->
+  <rect x="2" y="2" width="508" height="156" rx="14" fill="none" stroke="url(#redframe)" stroke-width="6"/>
+  <!-- Window-frame title bar nub accent -->
+  <rect x="20" y="18" width="40" height="6" rx="3" fill="#E63950"/>
+  <!-- DOB wordmark with white top highlight -->
+  <text x="256" y="98" font-family="sans-serif" font-size="66" font-weight="bold" fill="url(#wordmark)" text-anchor="middle">DOB</text>
+  <!-- Installer subtitle -->
+  <text x="256" y="134" font-family="sans-serif" font-size="22" font-weight="600" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">Installer</text>
 </svg>
