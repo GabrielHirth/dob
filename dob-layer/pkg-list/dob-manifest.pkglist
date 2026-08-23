@@ -1,6 +1,12 @@
-# DOB live image package manifest
-# Format: one package/port specifier per line (FreeBSD pkg / flavor).
-
-# --- DOB installer (local-built) ---
-# Built in-tree from dob-layer/installer (Qt6). Local pkg/port produced in Task 10/11.
+# --- Desktop environment ---
+plasma6
+plasma6-sddm
+# --- DOB installer (local-built; see build/README.md) ---
 dob-installer
+# --- Home desktop apps ---
+firefox
+libreoffice
+vlc
+dolphin
+# --- Theme/runtime deps ---
+kvantum
