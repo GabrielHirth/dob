@@ -14,6 +14,10 @@ add_executable(dob-installer
     main.cpp
     config.cpp
     installer.cpp
+    pages/welcome_page.cpp
+    pages/disk_page.cpp
+    pages/user_page.cpp
+    pages/summary_page.cpp
 )
 
 target_link_libraries(dob-installer Qt6::Widgets)

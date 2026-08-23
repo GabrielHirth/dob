@@ -1,5 +1,10 @@
 #include "installer.h"
 
+#include "pages/disk_page.h"
+#include "pages/summary_page.h"
+#include "pages/user_page.h"
+#include "pages/welcome_page.h"
+
 #include <QPalette>
 #include <QStyleFactory>
 
@@ -33,4 +38,11 @@ Installer::Installer(QWidget* parent)
         "QWizard { background-color: #FBFBFC; }"
         "QLabel { color: #7A0A1E; }"
     );
+
+    setPage(Page_Welcome, new WelcomePage(m_config, this));
+    setPage(Page_Disk, new DiskPage(m_config, this));
+    setPage(Page_User, new UserPage(m_config, this));
+    setPage(Page_Summary, new SummaryPage(m_config, this));
+
+    setStartId(Page_Welcome);
 }

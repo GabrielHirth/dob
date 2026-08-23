@@ -5,6 +5,14 @@
 
 #include "config.h"
 
+// Page identifiers, registered with QWizard::setPage().
+enum InstallerPage {
+    Page_Welcome,
+    Page_Disk,
+    Page_User,
+    Page_Summary
+};
+
 // Installer is the branded QWizard window.
 // Pages are added in Task 7; for now it constructs an empty,
 // DOB-styled window titled "DOB Installer".
