@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=DOB
+Name[en]=DOB
+Comment=DOB desktop splash (red-bold)
+Type=Service
+X-KDE-ServiceTypes=Plasma/Splash
+X-KDE-Library=plasma_splash_dob
+Icon=

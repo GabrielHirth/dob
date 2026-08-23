@@ -1,0 +1,6 @@
+# DOB loader config — autoboot straight into the OS, no menu.
+autoboot_delay="-1"
+menu_timeout="0"
+beastie_disable="YES"
+loader_logo="do"
+# DOB blue logo (no red frame). Reference static boot splash after kernel starts.

@@ -1,0 +1,6 @@
+# DOB rc config
+dumpdev="NO"
+# Hide verbose boot; show static DOB boot splash via vt
+splash="DOB"
+# Live: launch Plasma + DOB desktop splash on first boot (Task 9 adds trigger)
+dob_live_autostart="YES"
