@@ -18,8 +18,19 @@ add_executable(dob-installer
     pages/disk_page.cpp
     pages/user_page.cpp
     pages/summary_page.cpp
+    engine/plan_install.cpp
+    engine/install_engine.cpp
 )
 
 target_link_libraries(dob-installer Qt6::Widgets)
+
+# Unit test target for planInstall (pure function, no Qt dependency)
+add_executable(plan_install_test
+    engine/plan_install_test.cpp
+    engine/plan_install.cpp
+    config.cpp
+)
+
+target_compile_definitions(plan_install_test PRIVATE DOB_UNIT_TEST)
 
 install(TARGETS dob-installer RUNTIME DESTINATION /usr/local/bin)
