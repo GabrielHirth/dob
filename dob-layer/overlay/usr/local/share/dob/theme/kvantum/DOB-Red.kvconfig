@@ -1,0 +1,15 @@
+[General]
+# DOB-Red — glossy Fruitiger Aero buttons with a confident red highlight.
+# Blue stays dominant; red is the accent (active/selection/hover).
+activePageColor=192,16,42
+inactivePageColor=48,84,128
+buttonHoverColor=230,57,80
+buttonFocusColor=192,16,42
+viewHoverColor=192,16,42
+viewFocusColor=230,57,80
+tooltipColor=48,84,128
+frame="@lightness"
+# Glossy gradient buttons.
+buttonStyle=3
+# Subtle glass highlight on top of widgets.
+textureOverlays=true

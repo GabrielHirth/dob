@@ -1,0 +1,17 @@
+[KPackage]
+Description=DOB red-tinted Fruitiger Aero
+Name=DOB
+Type=LookAndFeel
+
+[Settings]
+[PlasmaLookAndFeel]
+ColorScheme=DOB-Red
+DesktopLayout=org.kde.plasma.folder
+Theme=DOB-Red
+
+[KWin]
+CaptionOutline=255,255,255
+TitlebarProfile=DOB-Red
+
+[Wallpaper]
+Image=file:///usr/local/share/dob/theme/wallpaper/mountain.png
