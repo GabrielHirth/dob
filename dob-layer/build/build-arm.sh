@@ -13,16 +13,35 @@ DOB_PKGLIST="${DOB_ROOT}/pkg-list/dob-manifest.pkglist"
 NCPU=$(sysctl -n hw.ncpu)
 
 # 1. Ensure src/ports at pinned release
+echo "=== DOB build: checking /usr/src ==="
 if [ ! -d /usr/src ]; then
+    echo "Cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
     git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
+else
+    echo "/usr/src exists. Current branch:"
+    (cd /usr/src && git branch --show-current)
+    echo "Last commit:"
+    (cd /usr/src && git log -1 --oneline)
 fi
+echo "=== DOB build: checking /usr/ports ==="
 if [ ! -d /usr/ports ]; then
+    echo "Cloning FreeBSD ports (branch: main)..."
     git clone --branch main https://git.FreeBSD.org/ports.git /usr/ports
+else
+    echo "/usr/ports exists. Current branch:"
+    (cd /usr/ports && git branch --show-current)
 fi
 
+echo "=== DOB build: verifying Makefile in /usr/src ==="
+ls -la /usr/src/Makefile 2>/dev/null || echo "ERROR: /usr/src/Makefile NOT FOUND"
+grep -n '^buildworld:' /usr/src/Makefile 2>/dev/null || echo "ERROR: buildworld target not in Makefile"
+
 # 2. Build world + kernel for arm64
+echo "=== DOB build: starting buildworld for arm64 ==="
 cd /usr/src
-make -j"${NCPU}" buildworld buildkernel KERNCONF=GENERIC TARGET=arm64 TARGET_ARCH=aarch64
+make -j"${NCPU}" buildworld buildkernel KERNCONF=GENERIC TARGET=arm64 TARGET_ARCH=aarch64 2>&1 | tee /tmp/dob-arm-build.log
+echo "make exit code: ${PIPESTATUS[0]}"
+tail -50 /tmp/dob-arm-build.log
 
 # 3. Install to staging root
 STAGE=/tmp/dob-arm64-root

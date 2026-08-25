@@ -12,19 +12,39 @@ DOB_OVERLAY="${DOB_ROOT}/overlay"
 DOB_PKGLIST="${DOB_ROOT}/pkg-list/dob-manifest.pkglist"
 
 # 1. Ensure FreeBSD src/ports at pinned release exist
+echo "=== DOB build: checking /usr/src ==="
 if [ ! -d /usr/src ]; then
+    echo "Cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
     git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
+else
+    echo "/usr/src exists. Current branch:"
+    (cd /usr/src && git branch --show-current)
+    echo "Last commit:"
+    (cd /usr/src && git log -1 --oneline)
 fi
+echo "=== DOB build: checking /usr/ports ==="
 if [ ! -d /usr/ports ]; then
+    echo "Cloning FreeBSD ports (branch: main)..."
     git clone --branch main https://git.FreeBSD.org/ports.git /usr/ports
+else
+    echo "/usr/ports exists. Current branch:"
+    (cd /usr/ports && git branch --show-current)
 fi
 
+echo "=== DOB build: verifying Makefile in /usr/src ==="
+ls -la /usr/src/Makefile 2>/dev/null || echo "ERROR: /usr/src/Makefile NOT FOUND"
+echo "=== DOB build: checking for buildworld target ==="
+grep -n '^buildworld:' /usr/src/Makefile 2>/dev/null || echo "ERROR: buildworld target not in Makefile"
+
 # 2. Build x86_64 ISO via release.sh with DOB config
+echo "=== DOB build: running release.sh ==="
 cd /usr/src/release
 env DOB_OVERLAY="${DOB_OVERLAY}" \
     DOB_PKGLIST="${DOB_PKGLIST}" \
     DOB_VERSION="${DOB_VERSION}" \
-    sh release.sh -c "${DOB_ROOT}/build/DOB-release.conf" amd64
+    sh release.sh -c "${DOB_ROOT}/build/DOB-release.conf" amd64 2>&1 | tee /tmp/dob-release.log
+echo "release.sh exit code: ${PIPESTATUS[0]}"
+tail -50 /tmp/dob-release.log
 
 # 3. Rasterize boot splash PNGs from SVG on the build host (rsvg-convert from graphics/librsvg2)
 if command -v rsvg-convert >/dev/null 2>&1; then
