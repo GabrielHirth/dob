@@ -13,10 +13,10 @@ DOB_PKGLIST="${DOB_ROOT}/pkg-list/dob-manifest.pkglist"
 
 # 1. Ensure FreeBSD src/ports at pinned release exist
 if [ ! -d /usr/src ]; then
-    git clone --branch "releng/${DOB_FREEBSD_REL}" --depth 1 https://git.FreeBSD.org/src.git /usr/src
+    git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
 fi
 if [ ! -d /usr/ports ]; then
-    git clone --branch "releng/${DOB_FREEBSD_REL}" --depth 1 https://git.FreeBSD.org/ports.git /usr/ports
+    git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/ports.git /usr/ports
 fi
 
 # 2. Build x86_64 ISO via release.sh with DOB config
