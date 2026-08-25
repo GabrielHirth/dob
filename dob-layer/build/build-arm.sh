@@ -46,10 +46,8 @@ grep -n '^buildworld:' /usr/src/Makefile 2>/dev/null || echo "ERROR: buildworld 
 echo "=== DOB build: starting buildworld for arm64 ==="
 cd /usr/src
 make -j"${NCPU}" buildworld buildkernel KERNCONF=GENERIC TARGET=arm64 TARGET_ARCH=aarch64 \
-    SRCCONF="${DOB_ROOT}/build/dob-src.conf" \
-    XCC=/usr/bin/cc XCXX=/usr/bin/c++ XCPP=/usr/bin/cpp XLD=/usr/bin/ld \
     2>&1 | tee /tmp/dob-arm-build.log
-echo "make exit code: ${PIPESTATUS[0]}"
+echo "make exit code: ${?}"
 tail -50 /tmp/dob-arm-build.log
 
 # 3. Install to staging root
@@ -57,9 +55,7 @@ STAGE=/tmp/dob-arm64-root
 rm -rf "${STAGE}"
 mkdir -p "${STAGE}"
 make -j"${NCPU}" installworld installkernel distribution \
-    KERNCONF=GENERIC TARGET=arm64 TARGET_ARCH=aarch64 DESTDIR="${STAGE}" \
-    SRCCONF="${DOB_ROOT}/build/dob-src.conf" \
-    XCC=/usr/bin/cc XCXX=/usr/bin/c++ XCPP=/usr/bin/cpp XLD=/usr/bin/ld
+    KERNCONF=GENERIC TARGET=arm64 TARGET_ARCH=aarch64 DESTDIR="${STAGE}"
 
 # 4. Extract packages (base.txz, kernel.txz, packages.txz) if present in release output
 OBJ_DIR="/usr/obj/usr/src/arm64.aarch64/release"
