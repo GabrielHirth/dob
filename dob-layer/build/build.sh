@@ -46,9 +46,15 @@ grep -n '^buildworld:' /usr/src/Makefile 2>/dev/null || echo "ERROR: buildworld 
 # 2. Build x86_64 ISO via release.sh with DOB config
 echo "=== DOB build: running release.sh ==="
 cd /usr/src/release
+# Use dob-src.conf to skip in-tree LLVM build; host toolchain via XCC/XCXX
 env DOB_OVERLAY="${DOB_OVERLAY}" \
     DOB_PKGLIST="${DOB_PKGLIST}" \
     DOB_VERSION="${DOB_VERSION}" \
+    SRCCONF="${DOB_ROOT}/build/dob-src.conf" \
+    XCC=/usr/bin/cc \
+    XCXX=/usr/bin/c++ \
+    XCPP=/usr/bin/cpp \
+    XLD=/usr/bin/ld \
     sh release.sh -c "${DOB_ROOT}/build/DOB-release.conf" amd64 2>&1 | tee /tmp/dob-release.log
 echo "release.sh exit code: ${PIPESTATUS[0]}"
 tail -50 /tmp/dob-release.log
