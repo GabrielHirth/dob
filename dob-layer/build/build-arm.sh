@@ -14,21 +14,25 @@ NCPU=$(sysctl -n hw.ncpu)
 
 # 1. Ensure src/ports at pinned release
 echo "=== DOB build: checking /usr/src ==="
-if [ ! -d /usr/src ]; then
-    echo "Cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
+if [ ! -d /usr/src ] || ! (cd /usr/src && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    echo "Re-cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
+    rm -rf /usr/src
     git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
+    echo "Clone exit code: $?"
 else
-    echo "/usr/src exists. Current branch:"
+    echo "/usr/src exists and is a git repo. Current branch:"
     (cd /usr/src && git branch --show-current)
     echo "Last commit:"
     (cd /usr/src && git log -1 --oneline)
 fi
 echo "=== DOB build: checking /usr/ports ==="
-if [ ! -d /usr/ports ]; then
-    echo "Cloning FreeBSD ports (branch: main)..."
+if [ ! -d /usr/ports ] || ! (cd /usr/ports && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    echo "Re-cloning FreeBSD ports (branch: main)..."
+    rm -rf /usr/ports
     git clone --branch main https://git.FreeBSD.org/ports.git /usr/ports
+    echo "Clone exit code: $?"
 else
-    echo "/usr/ports exists. Current branch:"
+    echo "/usr/ports exists and is a git repo. Current branch:"
     (cd /usr/ports && git branch --show-current)
 fi
 
