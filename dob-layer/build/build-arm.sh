@@ -16,6 +16,7 @@ NCPU=$(sysctl -n hw.ncpu)
 echo "=== DOB build: checking /usr/src ==="
 if [ ! -d /usr/src ] || ! (cd /usr/src && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
     echo "Re-cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
+    umount /usr/src 2>/dev/null || true
     rm -rf /usr/src
     git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
     echo "Clone exit code: $?"
@@ -28,6 +29,7 @@ fi
 echo "=== DOB build: checking /usr/ports ==="
 if [ ! -d /usr/ports ] || ! (cd /usr/ports && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
     echo "Re-cloning FreeBSD ports (branch: main)..."
+    umount /usr/ports 2>/dev/null || true
     rm -rf /usr/ports
     git clone --branch main https://git.FreeBSD.org/ports.git /usr/ports
     echo "Clone exit code: $?"
