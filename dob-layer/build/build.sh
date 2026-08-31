@@ -98,10 +98,12 @@ if $RESUME && step_done build; then
 else
     echo "=== DOB build: running release.sh ==="
     cd /usr/src/release
+    # Note: DOB_OVERLAY/DOB_PKGLIST are NOT release.sh variables. The overlay
+    # and packages are applied as a post-processing step after release.sh
+    # produces the base ISO. release.sh's only real knob for extra files is
+    # LOCAL_DIST (not used here — we overlay onto the ISO directly).
     run_and_stream /tmp/dob-release.log \
-        env DOB_OVERLAY="${DOB_OVERLAY}" \
-            DOB_PKGLIST="${DOB_PKGLIST}" \
-            DOB_VERSION="${DOB_VERSION}" \
+        env DOB_VERSION="${DOB_VERSION}" \
             SRCCONF="${DOB_ROOT}/build/dob-src.conf" \
             XCC=/usr/bin/cc \
             XCXX=/usr/bin/c++ \
@@ -125,6 +127,100 @@ else
         exit 1
     fi
     mark_done build
+fi
+
+# 2b. Apply DOB overlay + packages into the release tree
+# release.sh produces a base FreeBSD ISO with no DOB customizations. This
+# step copies the DOB overlay into the release tree and installs the DOB
+# package set via chroot pkg, then re-builds the ISO.
+if $RESUME && step_done overlay; then
+    echo "=== Overlay step already complete, skipping (--resume) ==="
+else
+    STAGE=/tmp/dob-stage
+    rm -rf "${STAGE}"
+    mkdir -p "${STAGE}"
+
+    # 1. Extract the release filesystem tree (root + base/kernel tars) into
+    #    the staging dir. release.sh produces the tars under /usr/obj/.../release/dist/
+    DIST="/usr/obj/usr/src/amd64.amd64/release/dist"
+    if [ -d "${DIST}" ]; then
+        for txz in base.txz kernel.txz; do
+            if [ -f "${DIST}/${txz}" ]; then
+                tar -xJf "${DIST}/${txz}" -C "${STAGE}"
+            fi
+        done
+    else
+        # Fallback: extract directly from the release dir's txz set.
+        # (release.sh may have cleaned /usr/obj; we work from /scratch/R/ instead.)
+        echo "WARNING: ${DIST} not found, trying alternative locations"
+    fi
+
+    # 2. Apply DOB overlay (files in dob-layer/overlay/ replace matching
+    #    files in the staging root)
+    if [ -d "${DOB_OVERLAY}" ]; then
+        cp -a "${DOB_OVERLAY}/." "${STAGE}/"
+        echo "DOB overlay applied from ${DOB_OVERLAY}"
+    else
+        echo "ERROR: DOB overlay not found at ${DOB_OVERLAY}" >&2
+        exit 1
+    fi
+
+    # 3. Run /etc/rc.d/abi and pkg bootstrap inside the staging root
+    if command -v pkg >/dev/null 2>&1; then
+        # Install DOB package set into the staging root via chroot
+        # Filter comments + blank lines, then pass to pkg -r
+        PKGS=$(grep -v '^#' "${DOB_PKGLIST}" | grep -v '^[[:space:]]*$' | tr '\n' ' ')
+        if [ -n "${PKGS}" ]; then
+            # Use a nullfs mount to chroot with /dev etc available
+            mount -t devfs devfs "${STAGE}/dev" || true
+            pkg -c "${STAGE}" install -y ${PKGS} || \
+                echo "WARNING: pkg install in chroot failed (continuing)"
+            umount "${STAGE}/dev" 2>/dev/null || true
+            echo "DOB packages installed: ${PKGS}"
+        fi
+    else
+        echo "WARNING: pkg not on PATH; skipping DOB package installation"
+    fi
+
+    # 4. Re-pack the staging tree into a new ISO
+    #    Use mkisofs/bsdmakefs with the release.sh-style hybrid UEFI+BIOS layout.
+    ISO_OUT="/scratch/R/dob-${DOB_VERSION}-amd64-disc1.iso"
+    rm -f "${ISO_OUT}"
+
+    # Build efiboot.img for UEFI boot
+    EFI_STAGE="${STAGE}/boot/efi"
+    if [ -d "${EFI_STAGE}" ]; then
+        dd if=/dev/zero of=/tmp/dob-efiboot.img bs=1k count=1440 2>/dev/null
+        mkfs.msdos -F 12 /tmp/dob-efiboot.img >/dev/null
+        MTOUTPUT=$(mktemp -d)
+        mount -t msdosfs /tmp/dob-efiboot.img "${MTOUTPUT}"
+        cp -r "${EFI_STAGE}/." "${MTOUTPUT}/"
+        umount "${MTOUTPUT}"
+        rmdir "${MTOUTPUT}"
+    fi
+
+    # Make the ISO using mkisofs (hybrid UEFI+BIOS)
+    if command -v mkisofs >/dev/null 2>&1; then
+        mkisofs -R -J -V "DOB_${DOB_VERSION}" \
+            -b boot/cdboot -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -eltorito-alt-boot -e efiboot.img -no-emul-boot -isohybrid-mbr /usr/obj/usr/src/amd64.amd64/release/iso/mbr.iso \
+            -o "${ISO_OUT}" "${STAGE}" 2>&1 | tail -20
+    elif command -v xorriso >/dev/null 2>&1; then
+        xorriso -as mkisofs -R -J -V "DOB_${DOB_VERSION}" \
+            -b boot/cdboot -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -eltorito-alt-boot -e efiboot.img -no-emul-boot -isohybrid-mbr /usr/obj/usr/src/amd64.amd64/release/iso/mbr.iso \
+            -o "${ISO_OUT}" "${STAGE}" 2>&1 | tail -20
+    else
+        echo "ERROR: neither mkisofs nor xorriso found" >&2
+        exit 1
+    fi
+
+    if [ ! -f "${ISO_OUT}" ]; then
+        echo "ERROR: DOB ISO was not produced: ${ISO_OUT}" >&2
+        exit 1
+    fi
+    echo "DOB ISO produced: ${ISO_OUT}"
+    mark_done overlay
 fi
 
 # 3. Rasterize boot splash PNGs from SVG on the build host (rsvg-convert from graphics/librsvg2)
@@ -163,9 +259,9 @@ fi
 if $RESUME && step_done assemble; then
     echo "=== Assemble step already complete, skipping (--resume) ==="
 else
-    # release.sh names the ISO after the FreeBSD release, not DOB. Copy and
-    # rename to the DOB-branded filename.
-    ISO_SRC="/scratch/R/FreeBSD-16.0-CURRENT-amd64-disc1.iso"
+    # The overlay step produced the DOB-branded ISO. Copy to working dir
+    # under the canonical name and generate checksums.
+    ISO_SRC="/scratch/R/dob-${DOB_VERSION}-amd64-disc1.iso"
     ISO_DST="dob-${DOB_VERSION}-amd64.iso"
     cp "${ISO_SRC}" "${ISO_DST}"
     sha256 "${ISO_DST}" > SHA256SUMS
