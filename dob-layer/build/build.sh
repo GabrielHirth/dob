@@ -54,12 +54,16 @@ if $RESUME && step_done clone; then
     echo "=== Clone step already complete, skipping (--resume) ==="
 else
     echo "=== DOB build: checking /usr/src ==="
-    if [ ! -d /usr/src ] || ! (cd /usr/src && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    if [ ! -f /usr/src/Makefile ] || ! (cd /usr/src && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
         echo "Re-cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
         umount /usr/src 2>/dev/null || true
         rm -rf /usr/src
         git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
         echo "Clone exit code: $?"
+        if [ ! -f /usr/src/Makefile ]; then
+            echo "ERROR: /usr/src/Makefile missing after clone. Clone may be incomplete." >&2
+            exit 1
+        fi
     else
         echo "/usr/src exists and is a git repo. Current branch:"
         (cd /usr/src && git branch --show-current)
@@ -67,12 +71,16 @@ else
         (cd /usr/src && git log -1 --oneline)
     fi
     echo "=== DOB build: checking /usr/ports ==="
-    if [ ! -d /usr/ports ] || ! (cd /usr/ports && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    if [ ! -d /usr/ports/ports-mgmt/pkg ] || ! (cd /usr/ports && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
         echo "Re-cloning FreeBSD ports (branch: main)..."
         umount /usr/ports 2>/dev/null || true
         rm -rf /usr/ports
         git clone --branch main https://git.FreeBSD.org/ports.git /usr/ports
         echo "Clone exit code: $?"
+        if [ ! -d /usr/ports/ports-mgmt/pkg ]; then
+            echo "ERROR: /usr/ports/ports-mgmt/pkg missing after clone. Clone may be incomplete." >&2
+            exit 1
+        fi
     else
         echo "/usr/ports exists and is a git repo. Current branch:"
         (cd /usr/ports && git branch --show-current)
@@ -105,6 +113,14 @@ else
     if [ "${RC}" -ne 0 ]; then
         echo "ERROR: release.sh failed (exit ${RC}). Re-run with --resume to retry from this step." >&2
         exit "${RC}"
+    fi
+    # release.sh can return 0 even when its internal make failed. Verify the
+    # ISO exists before marking the step done and proceeding to assemble.
+    ISO_SRC="/usr/obj/usr/src/amd64.amd64/release/iso/dob-${DOB_VERSION}-amd64.iso"
+    if [ ! -f "${ISO_SRC}" ]; then
+        echo "ERROR: release.sh exited 0 but ISO is missing: ${ISO_SRC}" >&2
+        echo "Check /tmp/dob-release.log for build errors. Re-run with --resume to retry." >&2
+        exit 1
     fi
     mark_done build
 fi

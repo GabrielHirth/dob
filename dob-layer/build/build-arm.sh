@@ -57,12 +57,16 @@ if $RESUME && step_done clone; then
     echo "=== Clone step already complete, skipping (--resume) ==="
 else
     echo "=== DOB build: checking /usr/src ==="
-    if [ ! -d /usr/src ] || ! (cd /usr/src && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    if [ ! -f /usr/src/Makefile ] || ! (cd /usr/src && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
         echo "Re-cloning FreeBSD src (branch: releng/${DOB_FREEBSD_REL})..."
         umount /usr/src 2>/dev/null || true
         rm -rf /usr/src
         git clone --branch "releng/${DOB_FREEBSD_REL}" https://git.FreeBSD.org/src.git /usr/src
         echo "Clone exit code: $?"
+        if [ ! -f /usr/src/Makefile ]; then
+            echo "ERROR: /usr/src/Makefile missing after clone. Clone may be incomplete." >&2
+            exit 1
+        fi
     else
         echo "/usr/src exists and is a git repo. Current branch:"
         (cd /usr/src && git branch --show-current)
@@ -70,12 +74,16 @@ else
         (cd /usr/src && git log -1 --oneline)
     fi
     echo "=== DOB build: checking /usr/ports ==="
-    if [ ! -d /usr/ports ] || ! (cd /usr/ports && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    if [ ! -d /usr/ports/ports-mgmt/pkg ] || ! (cd /usr/ports && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
         echo "Re-cloning FreeBSD ports (branch: main)..."
         umount /usr/ports 2>/dev/null || true
         rm -rf /usr/ports
         git clone --branch main https://git.FreeBSD.org/ports.git /usr/ports
         echo "Clone exit code: $?"
+        if [ ! -d /usr/ports/ports-mgmt/pkg ]; then
+            echo "ERROR: /usr/ports/ports-mgmt/pkg missing after clone. Clone may be incomplete." >&2
+            exit 1
+        fi
     else
         echo "/usr/ports exists and is a git repo. Current branch:"
         (cd /usr/ports && git branch --show-current)
