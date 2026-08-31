@@ -44,11 +44,17 @@ echo "=== DOB build: checking for buildworld target ==="
 grep -n '^buildworld:' /usr/src/Makefile 2>/dev/null || echo "ERROR: buildworld target not in Makefile"
 
 # 2. Build x86_64 ISO via release.sh with DOB config
+#    Use dob-src.conf to skip in-tree LLVM build; host toolchain via XCC/XCXX/XCPP/XLD.
 echo "=== DOB build: running release.sh ==="
 cd /usr/src/release
 env DOB_OVERLAY="${DOB_OVERLAY}" \
     DOB_PKGLIST="${DOB_PKGLIST}" \
     DOB_VERSION="${DOB_VERSION}" \
+    SRCCONF="${DOB_ROOT}/build/dob-src.conf" \
+    XCC=/usr/bin/cc \
+    XCXX=/usr/bin/c++ \
+    XCPP=/usr/bin/cpp \
+    XLD=/usr/bin/ld \
     sh release.sh -c "${DOB_ROOT}/build/DOB-release.conf" amd64 2>&1 | tee /tmp/dob-release.log
 echo "release.sh exit code: ${?}"
 tail -50 /tmp/dob-release.log

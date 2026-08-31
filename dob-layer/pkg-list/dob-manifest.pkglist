@@ -10,4 +10,12 @@ vlc
 dolphin
 # --- Theme/runtime deps ---
 kvantum
+# --- LLVM + dependents (installed as pre-built pkgs; skipped in buildworld via dob-src.conf) ---
 llvm18
+libclc
+mesa-dri
+qt6-base
+qt6-declarative
+qt6-svg
+qt6-tools
+qt6-wayland

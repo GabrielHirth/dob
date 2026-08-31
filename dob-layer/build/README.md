@@ -37,10 +37,17 @@
 |------|---------|
 | `pins.sh` | Version pins (FreeBSD release, package set, DOB version) |
 | `DOB-release.conf` | `release.sh` configuration (distributions, overlay, pkg list, boot mode) |
+| `dob-src.conf` | `src.conf` that skips in-tree LLVM/Clang/LLD/Binutils builds; host toolchain used instead |
 | `build.sh` | x86_64 hybrid UEFI+BIOS ISO build (sourced documentation) |
 | `build-arm.sh` | ARM64 (RPi/UTM) disk image build via `mkimg` (sourced documentation) |
 
 ---
+
+## LLVM Handling
+
+LLVM is **not built in-tree** during `buildworld`. Both `build.sh` and `build-arm.sh` pass `dob-src.conf` as `SRCCONF`, which sets `WITHOUT_LLVM/CLANG/LLD/BINUTILS=YES`. The host toolchain (`XCC/XCXX/XCPP/XLD`) is used instead.
+
+LLVM and its dependents (`llvm18`, `libclc`, `mesa-dri`, `qt6-*`) are installed as **pre-built packages** from the FreeBSD package repository during image creation, via `dob-manifest.pkglist`. This keeps build times down and avoids compiling LLVM from source.
 
 ## How to Build
 
