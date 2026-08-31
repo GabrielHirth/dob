@@ -118,7 +118,7 @@ else
     # ISO exists before marking the step done and proceeding to assemble.
     # release.sh outputs to /R/ (chroot) which maps to /usr/obj/.../release/ on
     # the host, using FreeBSD default naming (FreeBSD-<ver>-<arch>-disc1.iso).
-    ISO_SRC="/usr/obj/usr/src/amd64.amd64/release/FreeBSD-16.0-CURRENT-amd64-disc1.iso"
+    ISO_SRC="/scratch/R/FreeBSD-16.0-CURRENT-amd64-disc1.iso"
     if [ ! -f "${ISO_SRC}" ]; then
         echo "ERROR: release.sh exited 0 but ISO is missing: ${ISO_SRC}" >&2
         echo "Check /tmp/dob-release.log for build errors. Re-run with --resume to retry." >&2
@@ -165,7 +165,7 @@ if $RESUME && step_done assemble; then
 else
     # release.sh names the ISO after the FreeBSD release, not DOB. Copy and
     # rename to the DOB-branded filename.
-    ISO_SRC="/usr/obj/usr/src/amd64.amd64/release/FreeBSD-16.0-CURRENT-amd64-disc1.iso"
+    ISO_SRC="/scratch/R/FreeBSD-16.0-CURRENT-amd64-disc1.iso"
     ISO_DST="dob-${DOB_VERSION}-amd64.iso"
     cp "${ISO_SRC}" "${ISO_DST}"
     sha256 "${ISO_DST}" > SHA256SUMS
