@@ -202,9 +202,10 @@ else
             export ABI_FILE
 
             # Override the staging root's pkg repo config. The default
-            # /etc/pkg/FreeBSD.conf points to /quarterly/ paths that don't
-            # exist for FreeBSD 16-CURRENT. Write our own AND pass it
-            # explicitly via PKG_CONFIG so the host's config is ignored.
+            # /etc/pkg/FreeBSD.conf from base.txz points to /quarterly/ paths
+            # that don't exist for FreeBSD 16-CURRENT. Write our own config
+            # and pass it explicitly with -C so pkg ignores the rootdir's
+            # default config entirely.
             mkdir -p "${STAGE}/etc/pkg"
             PKG_CONF="${STAGE}/etc/pkg/FreeBSD.conf"
             cat > "${PKG_CONF}" <<'PKGCONF'
@@ -229,13 +230,15 @@ FreeBSD-ports-kmods: {
 }
 PKGCONF
             echo "Custom pkg repo config written to ${PKG_CONF}"
-            export PKG_CONFIG="${PKG_CONF}"
+            echo "--- pkg config content ---"
+            cat "${PKG_CONF}"
+            echo "--- end config ---"
 
             # Clear any cached repo data inside the staging root
             rm -rf "${STAGE}/var/cache/pkg" 2>/dev/null || true
 
-            pkg -r "${STAGE}" update -f 2>&1 | tail -10 || true
-            pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
+            pkg -C "${PKG_CONF}" -r "${STAGE}" update -f 2>&1 | tail -10 || true
+            pkg -C "${PKG_CONF}" -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
             echo "DOB packages installed: ${PKGS}"
