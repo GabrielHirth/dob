@@ -137,6 +137,10 @@ if $RESUME && step_done overlay; then
     echo "=== Overlay step already complete, skipping (--resume) ==="
 else
     STAGE=/tmp/dob-stage
+    # Unmount devfs if it was left mounted from a previous run, then clean up.
+    if mount | grep -q "${STAGE}/dev"; then
+        umount "${STAGE}/dev" 2>/dev/null || true
+    fi
     # FreeBSD marks setuid binaries with schg (file immutable flag). Clear it
     # recursively before removing so rm can delete them.
     if [ -d "${STAGE}" ]; then
@@ -237,7 +241,10 @@ else
             pkg -r "${STAGE}" update -f 2>&1 | tee /tmp/dob-pkg.log || true
             pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tee /tmp/dob-pkg.log || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
-            umount "${STAGE}/dev" 2>/dev/null || true
+            # Unmount devfs now so the staging dir can be cleaned up later
+            if mount | grep -q "${STAGE}/dev"; then
+                umount "${STAGE}/dev" 2>/dev/null || true
+            fi
             echo "DOB packages installed: ${PKGS}"
         fi
     else
