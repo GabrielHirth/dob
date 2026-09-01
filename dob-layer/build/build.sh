@@ -309,6 +309,10 @@ TEMPREPO
         umount "${MTOUTPUT}"
         mdconfig -d -u "${MD}"
         rmdir "${MTOUTPUT}"
+        # xorriso resolves -e efiboot.img against the ISO root, which is
+        # built from ${STAGE}. Copy the finished image in there so the
+        # UEFI El Torito catalog can find it.
+        cp /tmp/dob-efiboot.img "${STAGE}/efiboot.img"
     fi
 
     # Make the ISO using xorriso (the only reliable ISO builder on
@@ -320,7 +324,9 @@ TEMPREPO
         echo "ERROR: xorriso not found. Install sysutils/xorriso and retry." >&2
         exit 1
     fi
-    xorriso -as mkisofs -R -J -V "DOB_${DOB_VERSION}" \
+    # ISO 9660 volume id is capped at 32 chars; "DOB_1.0" stays well under.
+    VOLID="DOB_$(echo "${DOB_VERSION}" | tr -cd 'A-Za-z0-9_')"
+    xorriso -as mkisofs -R -J -V "${VOLID}" \
         -b boot/cdboot -no-emul-boot -boot-load-size 4 -boot-info-table \
         -eltorito-alt-boot -e efiboot.img -no-emul-boot \
         -o "${ISO_OUT}" "${STAGE}" 2>&1 | tail -20
