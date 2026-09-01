@@ -189,6 +189,7 @@ else
             # Create /dev so devfs can be mounted
             mkdir -p "${STAGE}/dev"
             mount -t devfs devfs "${STAGE}/dev" || true
+
             # Use pkg -r with explicit ABI_FILE pointing at a readable uname
             # binary inside the staging root. This avoids the "Unable to
             # determine the ABI" error.
@@ -199,6 +200,36 @@ else
                 export ABI
             fi
             export ABI_FILE
+
+            # Override the staging root's pkg repo config. The default
+            # /etc/pkg/FreeBSD.conf points to a /quarterly/ path that doesn't
+            # exist for FreeBSD 16-CURRENT. Point to /latest/ and to the
+            # main pkgmir. Use FreeBSD:16:amd64 (not base_release_0).
+            mkdir -p "${STAGE}/etc/pkg"
+            cat > "${STAGE}/etc/pkg/FreeBSD.conf" <<'PKGCONF'
+FreeBSD: { enabled: no }
+FreeBSD-base: {
+  url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/base_latest",
+  enabled: yes,
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg"
+}
+FreeBSD-ports: {
+  url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/latest",
+  enabled: yes,
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg"
+}
+FreeBSD-ports-kmods: {
+  url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/kmods_latest_0",
+  enabled: yes,
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg"
+}
+PKGCONF
+            echo "Custom pkg repo config written to ${STAGE}/etc/pkg/FreeBSD.conf"
+
+            pkg -r "${STAGE}" update -f 2>&1 | tail -10 || true
             pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
