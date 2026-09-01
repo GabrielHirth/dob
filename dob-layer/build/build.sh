@@ -140,20 +140,31 @@ else
     rm -rf "${STAGE}"
     mkdir -p "${STAGE}"
 
-    # 1. Extract the release filesystem tree (root + base/kernel tars) into
-    #    the staging dir. release.sh produces the tars under /usr/obj/.../release/dist/
-    DIST="/usr/obj/usr/src/amd64.amd64/release/dist"
-    if [ -d "${DIST}" ]; then
-        for txz in base.txz kernel.txz; do
-            if [ -f "${DIST}/${txz}" ]; then
-                tar -xJf "${DIST}/${txz}" -C "${STAGE}"
-            fi
-        done
-    else
-        # Fallback: extract directly from the release dir's txz set.
-        # (release.sh may have cleaned /usr/obj; we work from /scratch/R/ instead.)
-        echo "WARNING: ${DIST} not found, trying alternative locations"
+    # 1. Extract the release filesystem tree (base + kernel tars) into the
+    #    staging dir. release.sh puts the tars in different places depending
+    #    on version; try the common locations.
+    FOUND_DIST=""
+    for candidate in \
+        "/usr/obj/usr/src/amd64.amd64/release/dist" \
+        "/scratch/R/dist" \
+        "/scratch/R/release/dist" \
+        "/usr/obj/usr/src/amd64.amd64/release"; do
+        if [ -f "${candidate}/base.txz" ]; then
+            FOUND_DIST="${candidate}"
+            break
+        fi
+    done
+    if [ -z "${FOUND_DIST}" ]; then
+        echo "ERROR: could not find base.txz in any known location." >&2
+        echo "Searched: /usr/obj/usr/src/amd64.amd64/release/dist, /scratch/R/dist, /scratch/R/release/dist" >&2
+        exit 1
     fi
+    echo "Extracting release tars from ${FOUND_DIST}"
+    for txz in base.txz kernel.txz; do
+        if [ -f "${FOUND_DIST}/${txz}" ]; then
+            tar -xJf "${FOUND_DIST}/${txz}" -C "${STAGE}"
+        fi
+    done
 
     # 2. Apply DOB overlay (files in dob-layer/overlay/ replace matching
     #    files in the staging root)
@@ -165,16 +176,26 @@ else
         exit 1
     fi
 
-    # 3. Run /etc/rc.d/abi and pkg bootstrap inside the staging root
+    # 3. Install DOB package set into the staging root via pkg -r
     if command -v pkg >/dev/null 2>&1; then
-        # Install DOB package set into the staging root via chroot
-        # Filter comments + blank lines, then pass to pkg -r
         PKGS=$(grep -v '^#' "${DOB_PKGLIST}" | grep -v '^[[:space:]]*$' | tr '\n' ' ')
         if [ -n "${PKGS}" ]; then
-            # Use a nullfs mount to chroot with /dev etc available
+            # Create /dev so devfs can be mounted
+            mkdir -p "${STAGE}/dev"
             mount -t devfs devfs "${STAGE}/dev" || true
-            pkg -c "${STAGE}" install -y ${PKGS} || \
-                echo "WARNING: pkg install in chroot failed (continuing)"
+            # Use pkg -r with explicit ABI_FILE pointing at a readable uname
+            # binary inside the staging root. This avoids the "Unable to
+            # determine the ABI" error.
+            ABI_FILE="${STAGE}/usr/bin/uname"
+            if [ ! -f "${ABI_FILE}" ]; then
+                # Fallback: use host's uname output to determine ABI
+                ABI=$(uname -s)-$(uname -r)-$(uname -m)
+                export ABI
+            fi
+            pkg -r "${STAGE}" \
+                ${ABI_FILE:+ABI_FILE="${ABI_FILE}"} \
+                install -y ${PKGS} 2>&1 | tail -30 || \
+                echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
             echo "DOB packages installed: ${PKGS}"
         fi
