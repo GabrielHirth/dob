@@ -300,10 +300,14 @@ TEMPREPO
     if [ -d "${EFI_STAGE}" ]; then
         dd if=/dev/zero of=/tmp/dob-efiboot.img bs=1k count=1440 2>/dev/null
         newfs_msdos -F 12 /tmp/dob-efiboot.img >/dev/null
+        # newfs_msdos wants a character device; mount_msdosfs wants a block
+        # device. Attach the file as a memory disk so both are happy.
+        MD=$(mdconfig -a -t vnode -f /tmp/dob-efiboot.img)
         MTOUTPUT=$(mktemp -d)
-        mount -t msdosfs /tmp/dob-efiboot.img "${MTOUTPUT}"
+        mount -t msdosfs "/dev/${MD}" "${MTOUTPUT}"
         cp -r "${EFI_STAGE}/." "${MTOUTPUT}/"
         umount "${MTOUTPUT}"
+        mdconfig -d -u "${MD}"
         rmdir "${MTOUTPUT}"
     fi
 
