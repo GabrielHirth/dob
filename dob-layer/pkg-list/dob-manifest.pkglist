@@ -2,7 +2,7 @@
 plasma6-plasma
 sddm
 # --- DOB installer (local-built; see build/README.md) ---
-dob-installer
+# dob-installer  # built separately, see build/dob-installer.sh
 # --- Home desktop apps ---
 firefox
 libreoffice
