@@ -237,6 +237,37 @@ else
                 cp /etc/resolv.conf "${STAGE}/etc/resolv.conf"
             fi
 
+            # Write a temp repo config to /tmp/temprepo/FreeBSD.conf before
+            # any pkg commands. This is the repo definition pkg will read.
+            mkdir -p /tmp/temprepo
+            cat > /tmp/temprepo/FreeBSD.conf <<'TEMPREPO'
+FreeBSD-ports: {
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/quarterly",
+  mirror_type: "srv",
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg",
+  enabled: yes
+}
+
+FreeBSD-ports-kmods: {
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/kmods_quarterly",
+  mirror_type: "srv",
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg",
+  enabled: yes
+}
+
+FreeBSD-base: {
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/base_quarterly",
+  mirror_type: "srv",
+  signature_type: "fingerprints",
+  fingerprints: "/usr/share/keys/pkg",
+  enabled: no
+}
+TEMPREPO
+            echo "Temp repo config written to /tmp/temprepo/FreeBSD.conf"
+            cat /tmp/temprepo/FreeBSD.conf
+
             # Force PACKAGESITE to the FreeBSD 14 /latest/ mirror. Hardcode
             # the ABI to FreeBSD:14:amd64 since the staging root's uname
             # reports 16.0-CURRENT which has no packages, and ${ABI} would
