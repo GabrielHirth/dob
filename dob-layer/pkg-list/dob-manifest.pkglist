@@ -9,7 +9,7 @@ libreoffice
 vlc
 dolphin
 # --- Theme/runtime deps ---
-kvantum
+Kvantum
 # --- LLVM + dependents (installed as pre-built pkgs; skipped in buildworld via dob-src.conf) ---
 llvm18
 libclc-llvm18
