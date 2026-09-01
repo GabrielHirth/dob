@@ -202,11 +202,12 @@ else
             export ABI_FILE
 
             # Override the staging root's pkg repo config. The default
-            # /etc/pkg/FreeBSD.conf points to a /quarterly/ path that doesn't
-            # exist for FreeBSD 16-CURRENT. Point to /latest/ and to the
-            # main pkgmir. Use FreeBSD:16:amd64 (not base_release_0).
+            # /etc/pkg/FreeBSD.conf points to /quarterly/ paths that don't
+            # exist for FreeBSD 16-CURRENT. Write our own AND pass it
+            # explicitly via PKG_CONFIG so the host's config is ignored.
             mkdir -p "${STAGE}/etc/pkg"
-            cat > "${STAGE}/etc/pkg/FreeBSD.conf" <<'PKGCONF'
+            PKG_CONF="${STAGE}/etc/pkg/FreeBSD.conf"
+            cat > "${PKG_CONF}" <<'PKGCONF'
 FreeBSD: { enabled: no }
 FreeBSD-base: {
   url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/base_latest",
@@ -227,7 +228,11 @@ FreeBSD-ports-kmods: {
   fingerprints: "/usr/share/keys/pkg"
 }
 PKGCONF
-            echo "Custom pkg repo config written to ${STAGE}/etc/pkg/FreeBSD.conf"
+            echo "Custom pkg repo config written to ${PKG_CONF}"
+            export PKG_CONFIG="${PKG_CONF}"
+
+            # Clear any cached repo data inside the staging root
+            rm -rf "${STAGE}/var/cache/pkg" 2>/dev/null || true
 
             pkg -r "${STAGE}" update -f 2>&1 | tail -10 || true
             pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
