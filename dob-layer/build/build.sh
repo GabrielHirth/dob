@@ -145,6 +145,7 @@ else
     #    on version; try the common locations.
     FOUND_DIST=""
     for candidate in \
+        "/scratch/usr/obj/usr/src/amd64.amd64/release" \
         "/usr/obj/usr/src/amd64.amd64/release/dist" \
         "/scratch/R/dist" \
         "/scratch/R/release/dist" \
