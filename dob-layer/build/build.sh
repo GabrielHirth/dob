@@ -201,44 +201,26 @@ else
             fi
             export ABI_FILE
 
-            # Override the staging root's pkg repo config. The default
-            # /etc/pkg/FreeBSD.conf from base.txz points to /quarterly/ paths
-            # that don't exist for FreeBSD 16-CURRENT. Write our own config
-            # and pass it explicitly with -C so pkg ignores the rootdir's
-            # default config entirely.
-            mkdir -p "${STAGE}/etc/pkg"
-            PKG_CONF="${STAGE}/etc/pkg/FreeBSD.conf"
-            cat > "${PKG_CONF}" <<'PKGCONF'
-FreeBSD: { enabled: no }
-FreeBSD-base: {
-  url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/base_latest",
-  enabled: yes,
-  signature_type: "fingerprints",
-  fingerprints: "/usr/share/keys/pkg"
-}
-FreeBSD-ports: {
-  url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/latest",
-  enabled: yes,
-  signature_type: "fingerprints",
-  fingerprints: "/usr/share/keys/pkg"
-}
-FreeBSD-ports-kmods: {
-  url: "pkg+https://pkg.FreeBSD.org/FreeBSD:16:amd64/kmods_latest_0",
-  enabled: yes,
-  signature_type: "fingerprints",
-  fingerprints: "/usr/share/keys/pkg"
-}
-PKGCONF
-            echo "Custom pkg repo config written to ${PKG_CONF}"
-            echo "--- pkg config content ---"
-            cat "${PKG_CONF}"
-            echo "--- end config ---"
-
-            # Clear any cached repo data inside the staging root
+            # Override the staging root's pkg repo config inline using
+            # pkg -o REPO_NAME:url=... — the most reliable way to force
+            # specific repo URLs regardless of what config pkg would
+            # otherwise read. Use /latest/ branches since /quarterly/ doesn't
+            # exist for FreeBSD 16-CURRENT.
             rm -rf "${STAGE}/var/cache/pkg" 2>/dev/null || true
 
-            pkg -C "${PKG_CONF}" -r "${STAGE}" update -f 2>&1 | tail -10 || true
-            pkg -C "${PKG_CONF}" -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
+            pkg -r "${STAGE}" \
+                -o REPOS_DIR:"" \
+                -o "FreeBSD-base:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/base_latest" \
+                -o "FreeBSD-ports:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/latest" \
+                -o "FreeBSD-ports-kmods:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/kmods_latest_0" \
+                update -f 2>&1 | tail -10 || true
+
+            pkg -r "${STAGE}" \
+                -o REPOS_DIR:"" \
+                -o "FreeBSD-base:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/base_latest" \
+                -o "FreeBSD-ports:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/latest" \
+                -o "FreeBSD-ports-kmods:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/kmods_latest_0" \
+                install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
             echo "DOB packages installed: ${PKGS}"
