@@ -201,27 +201,40 @@ else
             fi
             export ABI_FILE
 
-            # Override the staging root's pkg repo config inline using
-            # pkg -o REPO_NAME:url=... — the most reliable way to force
-            # specific repo URLs regardless of what config pkg would
-            # otherwise read. Pin to FreeBSD 14 amd64 (stable branch) via
-            # pkg.freebsd.org over HTTP, since /quarterly/ for 16-CURRENT
-            # doesn't exist yet.
+            # Copy the host's pkg config + resolv.conf into the staging root.
+            # Using the host's working config is more reliable than trying to
+            # override with -o flags. We still pin to FreeBSD 14 repos so
+            # packages actually exist for our base.
             rm -rf "${STAGE}/var/cache/pkg" 2>/dev/null || true
+            mkdir -p "${STAGE}/etc/pkg"
+            if [ -f /etc/pkg/FreeBSD.conf ]; then
+                cp /etc/pkg/FreeBSD.conf "${STAGE}/etc/pkg/FreeBSD.conf"
+                # Patch the URLs to point to /latest/ on FreeBSD 14 (the
+                # branch that has all the packages we need).
+                sed -i '' \
+                    -e 's|quarterly|latest|g' \
+                    -e 's|/release_0|/base_latest|g' \
+                    -e 's|pkg+https://pkgmir.geo.freebsd.org|pkg+http://pkg.freebsd.org|g' \
+                    "${STAGE}/etc/pkg/FreeBSD.conf" 2>/dev/null || \
+                sed -i \
+                    -e 's|quarterly|latest|g' \
+                    -e 's|/release_0|/base_latest|g' \
+                    -e 's|pkg+https://pkgmir.geo.freebsd.org|pkg+http://pkg.freebsd.org|g' \
+                    "${STAGE}/etc/pkg/FreeBSD.conf"
+                echo "Copied host pkg config to staging root (patched to /latest/ on FreeBSD 14)"
+                cat "${STAGE}/etc/pkg/FreeBSD.conf"
+            else
+                echo "WARNING: host /etc/pkg/FreeBSD.conf not found"
+            fi
 
-            pkg -r "${STAGE}" \
-                -o REPOS_DIR:"" \
-                -o "FreeBSD-base:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/base_latest" \
-                -o "FreeBSD-ports:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/latest" \
-                -o "FreeBSD-ports-kmods:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/kmods_latest_0" \
-                update -f 2>&1 | tail -10 || true
+            # Copy resolv.conf so DNS works inside the staging rootdir
+            mkdir -p "${STAGE}/etc"
+            if [ -f /etc/resolv.conf ]; then
+                cp /etc/resolv.conf "${STAGE}/etc/resolv.conf"
+            fi
 
-            pkg -r "${STAGE}" \
-                -o REPOS_DIR:"" \
-                -o "FreeBSD-base:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/base_latest" \
-                -o "FreeBSD-ports:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/latest" \
-                -o "FreeBSD-ports-kmods:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/kmods_latest_0" \
-                install -y ${PKGS} 2>&1 | tail -30 || \
+            pkg -r "${STAGE}" update -f 2>&1 | tail -10 || true
+            pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
             echo "DOB packages installed: ${PKGS}"
