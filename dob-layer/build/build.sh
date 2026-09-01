@@ -299,7 +299,7 @@ TEMPREPO
     EFI_STAGE="${STAGE}/boot/efi"
     if [ -d "${EFI_STAGE}" ]; then
         dd if=/dev/zero of=/tmp/dob-efiboot.img bs=1k count=1440 2>/dev/null
-        newfs_msdos -F 32 /tmp/dob-efiboot.img >/dev/null
+        newfs_msdos -F 12 /tmp/dob-efiboot.img >/dev/null
         MTOUTPUT=$(mktemp -d)
         mount -t msdosfs /tmp/dob-efiboot.img "${MTOUTPUT}"
         cp -r "${EFI_STAGE}/." "${MTOUTPUT}/"
