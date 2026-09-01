@@ -237,8 +237,11 @@ else
                 cp /etc/resolv.conf "${STAGE}/etc/resolv.conf"
             fi
 
-            # Force PACKAGESITE to the FreeBSD 14 /latest/ mirror. ${ABI}
-            # expands to e.g. FreeBSD:14:amd64 at runtime.
+            # Force PACKAGESITE to the FreeBSD 14 /latest/ mirror. Hardcode
+            # the ABI to FreeBSD:14:amd64 since the staging root's uname
+            # reports 16.0-CURRENT which has no packages, and ${ABI} would
+            # otherwise be empty inside the rootdir.
+            export ABI="FreeBSD:14:amd64"
             export PACKAGESITE="pkg+http://pkg.FreeBSD.org/${ABI}/latest"
 
             pkg -r "${STAGE}" bootstrap -f 2>&1 | tee /tmp/dob-pkg.log || true
