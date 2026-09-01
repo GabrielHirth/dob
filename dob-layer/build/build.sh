@@ -237,6 +237,10 @@ else
                 cp /etc/resolv.conf "${STAGE}/etc/resolv.conf"
             fi
 
+            # Force PACKAGESITE to the FreeBSD 14 /latest/ mirror. ${ABI}
+            # expands to e.g. FreeBSD:14:amd64 at runtime.
+            export PACKAGESITE="pkg+http://pkg.FreeBSD.org/${ABI}/latest"
+
             pkg -r "${STAGE}" bootstrap -f 2>&1 | tee /tmp/dob-pkg.log || true
             pkg -r "${STAGE}" update -f 2>&1 | tee /tmp/dob-pkg.log || true
             pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tee /tmp/dob-pkg.log || \
