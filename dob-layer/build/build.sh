@@ -242,7 +242,7 @@ else
             mkdir -p /tmp/temprepo
             cat > /tmp/temprepo/FreeBSD.conf <<'TEMPREPO'
 FreeBSD-ports: {
-  url: "pkg+https://pkg.FreeBSD.org/${ABI}/quarterly",
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/latest",
   mirror_type: "srv",
   signature_type: "fingerprints",
   fingerprints: "/usr/share/keys/pkg",
@@ -250,7 +250,7 @@ FreeBSD-ports: {
 }
 
 FreeBSD-ports-kmods: {
-  url: "pkg+https://pkg.FreeBSD.org/${ABI}/kmods_quarterly",
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/kmods_latest",
   mirror_type: "srv",
   signature_type: "fingerprints",
   fingerprints: "/usr/share/keys/pkg",
@@ -258,7 +258,7 @@ FreeBSD-ports-kmods: {
 }
 
 FreeBSD-base: {
-  url: "pkg+https://pkg.FreeBSD.org/${ABI}/base_quarterly",
+  url: "pkg+https://pkg.FreeBSD.org/${ABI}/base_latest",
   mirror_type: "srv",
   signature_type: "fingerprints",
   fingerprints: "/usr/share/keys/pkg",
