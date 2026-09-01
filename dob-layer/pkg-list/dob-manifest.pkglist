@@ -12,7 +12,7 @@ dolphin
 kvantum
 # --- LLVM + dependents (installed as pre-built pkgs; skipped in buildworld via dob-src.conf) ---
 llvm18
-libclc
+libclc-llvm18
 mesa-dri
 qt6-base
 qt6-declarative
