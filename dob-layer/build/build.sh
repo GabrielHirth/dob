@@ -274,6 +274,7 @@ TEMPREPO
             # otherwise be empty inside the rootdir.
             export ABI="FreeBSD:14:amd64"
             export PACKAGESITE="pkg+http://pkg.FreeBSD.org/${ABI}/latest"
+            export REPOS_DIR=/tmp/temprepo
 
             pkg -r "${STAGE}" bootstrap -f 2>&1 | tee /tmp/dob-pkg.log || true
             pkg -r "${STAGE}" update -f 2>&1 | tee /tmp/dob-pkg.log || true
