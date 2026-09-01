@@ -233,6 +233,7 @@ else
                 cp /etc/resolv.conf "${STAGE}/etc/resolv.conf"
             fi
 
+            pkg -r "${STAGE}" bootstrap -f 2>&1 | tail -10 || true
             pkg -r "${STAGE}" update -f 2>&1 | tail -10 || true
             pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
