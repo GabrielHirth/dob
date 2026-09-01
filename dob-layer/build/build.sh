@@ -137,6 +137,11 @@ if $RESUME && step_done overlay; then
     echo "=== Overlay step already complete, skipping (--resume) ==="
 else
     STAGE=/tmp/dob-stage
+    # FreeBSD marks setuid binaries with schg (file immutable flag). Clear it
+    # recursively before removing so rm can delete them.
+    if [ -d "${STAGE}" ]; then
+        chflags -R noschg "${STAGE}" 2>/dev/null || true
+    fi
     rm -rf "${STAGE}"
     mkdir -p "${STAGE}"
 
