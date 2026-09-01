@@ -204,22 +204,23 @@ else
             # Override the staging root's pkg repo config inline using
             # pkg -o REPO_NAME:url=... — the most reliable way to force
             # specific repo URLs regardless of what config pkg would
-            # otherwise read. Use /latest/ branches since /quarterly/ doesn't
-            # exist for FreeBSD 16-CURRENT.
+            # otherwise read. Pin to FreeBSD 14 amd64 (stable branch) via
+            # pkg.freebsd.org over HTTP, since /quarterly/ for 16-CURRENT
+            # doesn't exist yet.
             rm -rf "${STAGE}/var/cache/pkg" 2>/dev/null || true
 
             pkg -r "${STAGE}" \
                 -o REPOS_DIR:"" \
-                -o "FreeBSD-base:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/base_latest" \
-                -o "FreeBSD-ports:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/latest" \
-                -o "FreeBSD-ports-kmods:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/kmods_latest_0" \
+                -o "FreeBSD-base:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/base_latest" \
+                -o "FreeBSD-ports:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/latest" \
+                -o "FreeBSD-ports-kmods:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/kmods_latest_0" \
                 update -f 2>&1 | tail -10 || true
 
             pkg -r "${STAGE}" \
                 -o REPOS_DIR:"" \
-                -o "FreeBSD-base:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/base_latest" \
-                -o "FreeBSD-ports:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/latest" \
-                -o "FreeBSD-ports-kmods:url=pkg+http://pkgmir.geo.freebsd.org/FreeBSD:16:amd64/kmods_latest_0" \
+                -o "FreeBSD-base:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/base_latest" \
+                -o "FreeBSD-ports:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/latest" \
+                -o "FreeBSD-ports-kmods:url=pkg+http://pkg.freebsd.org/FreeBSD:14:amd64/kmods_latest_0" \
                 install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
