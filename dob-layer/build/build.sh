@@ -233,9 +233,9 @@ else
                 cp /etc/resolv.conf "${STAGE}/etc/resolv.conf"
             fi
 
-            pkg -r "${STAGE}" bootstrap -f 2>&1 | tail -10 || true
-            pkg -r "${STAGE}" update -f 2>&1 | tail -10 || true
-            pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
+            pkg -r "${STAGE}" bootstrap -f 2>&1 | tee /tmp/dob-pkg.log || true
+            pkg -r "${STAGE}" update -f 2>&1 | tee /tmp/dob-pkg.log || true
+            pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tee /tmp/dob-pkg.log || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
             echo "DOB packages installed: ${PKGS}"
