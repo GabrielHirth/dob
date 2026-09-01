@@ -193,9 +193,8 @@ else
                 ABI=$(uname -s)-$(uname -r)-$(uname -m)
                 export ABI
             fi
-            pkg -r "${STAGE}" \
-                ${ABI_FILE:+ABI_FILE="${ABI_FILE}"} \
-                install -y ${PKGS} 2>&1 | tail -30 || \
+            export ABI_FILE
+            pkg -r "${STAGE}" install -y ${PKGS} 2>&1 | tail -30 || \
                 echo "WARNING: pkg install in rootdir failed (continuing)"
             umount "${STAGE}/dev" 2>/dev/null || true
             echo "DOB packages installed: ${PKGS}"
