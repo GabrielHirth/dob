@@ -311,20 +311,25 @@ TEMPREPO
         rmdir "${MTOUTPUT}"
     fi
 
-    # Make the ISO using mkisofs (hybrid UEFI+BIOS)
-    if command -v mkisofs >/dev/null 2>&1; then
-        mkisofs -R -J -V "DOB_${DOB_VERSION}" \
-            -b boot/cdboot -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -eltorito-alt-boot -e efiboot.img -no-emul-boot -isohybrid-mbr /usr/obj/usr/src/amd64.amd64/release/iso/mbr.iso \
-            -o "${ISO_OUT}" "${STAGE}" 2>&1 | tail -20
-    elif command -v xorriso >/dev/null 2>&1; then
-        xorriso -as mkisofs -R -J -V "DOB_${DOB_VERSION}" \
-            -b boot/cdboot -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -eltorito-alt-boot -e efiboot.img -no-emul-boot -isohybrid-mbr /usr/obj/usr/src/amd64.amd64/release/iso/mbr.iso \
-            -o "${ISO_OUT}" "${STAGE}" 2>&1 | tail -20
-    else
-        echo "ERROR: neither mkisofs nor xorriso found" >&2
+    # Make the ISO using xorriso (the only reliable ISO builder on
+    # modern FreeBSD; the system's 'mkisofs' is the find(1)-style file
+    # search tool, not the genisoimage frontend). For a hybrid UEFI+BIOS
+    # image we omit -isohybrid-mbr at build time and run isohybrid(8) on
+    # the result; that avoids depending on mbr.iso from the release tree.
+    if ! command -v xorriso >/dev/null 2>&1; then
+        echo "ERROR: xorriso not found. Install sysutils/xorriso and retry." >&2
         exit 1
+    fi
+    xorriso -as mkisofs -R -J -V "DOB_${DOB_VERSION}" \
+        -b boot/cdboot -no-emul-boot -boot-load-size 4 -boot-info-table \
+        -eltorito-alt-boot -e efiboot.img -no-emul-boot \
+        -o "${ISO_OUT}" "${STAGE}" 2>&1 | tail -20
+    # Patch the ISO with an MBR / hybrid boot record so it boots from
+    # a USB stick on BIOS as well as UEFI. isohybrid is in syslinux.
+    if command -v isohybrid >/dev/null 2>&1; then
+        isohybrid "${ISO_OUT}" 2>&1 | tail -5
+    else
+        echo "WARNING: isohybrid not found; ISO will only boot on UEFI."
     fi
 
     if [ ! -f "${ISO_OUT}" ]; then
